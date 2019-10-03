@@ -6,6 +6,7 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <UserSecretsId>47e977cc-1342-4efb-8108-36ab53b1bec0</UserSecretsId>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 

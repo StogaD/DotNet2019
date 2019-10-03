@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -20,9 +21,15 @@ namespace CoreWebApp.Api
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        public IActionResult Get(int id)
         {
-            return "value";
+            if(id == 0)
+            {
+                //Api analuzer should  report the missing documentation for the HTTP 404 status code as a warning
+                return NotFound();
+            }
+            return Ok("value");
         }
 
         // POST api/<controller>
