@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CoreWebApp.Api.Model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -27,11 +29,14 @@ namespace CoreWebApp.Api
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody]string value)
+        public IActionResult Post(Product product)
         {
+            return Ok();
         }
 
         // PUT api/<controller>/5
+        [ApiConventionMethod(typeof(DefaultApiConventions),
+                             nameof(DefaultApiConventions.Put))]
         [HttpPut("{id}")]
         public void Put(int id, [FromBody]string value)
         {

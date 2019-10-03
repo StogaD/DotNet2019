@@ -36,7 +36,17 @@ namespace CoreWebApp.Api
         public void Put(int id, [FromBody]string value)
         {
         }
-
+        /// <summary>
+        /// Delete specific product
+        /// </summary>
+        /// <param name="id"></param>
+        /// <remarks>
+        /// Sample request
+        ///  DELETE
+        ///  {
+        ///  "id" : 14541
+        ///  }
+        /// </remarks>
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
