@@ -25,5 +25,12 @@ namespace CoreWebApp.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        // using ResponseCache for Action Method
+        [ResponseCache(Duration = 3, Location = ResponseCacheLocation.Any, NoStore = false, VaryByHeader = "User-Agent")]
+        public IActionResult Cached4Response()
+        {
+            return View(DateTime.UtcNow);
+        }
     }
 }
