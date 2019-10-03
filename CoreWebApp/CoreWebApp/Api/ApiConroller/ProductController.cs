@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CoreWebApp.Api.Filters;
 using CoreWebApp.Api.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,6 +31,7 @@ namespace CoreWebApp.Api
 
         // POST api/<controller>
         [HttpPost]
+        [Authorize]
         public IActionResult Post(Product product)
         {
             return Ok();
