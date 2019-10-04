@@ -328,3 +328,4 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+/CoreWebApp/CoreWebApp/logs/log2019100412.txt
