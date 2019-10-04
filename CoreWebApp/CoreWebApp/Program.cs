@@ -13,9 +13,21 @@ namespace CoreWebApp
 {
     public class Program
     {
+        private static readonly string Env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+        private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder()
+            .SetBasePath(Path.GetDirectoryName(typeof(Program).Assembly.Location))
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{Env}.json", optional: true)
+            .AddEnvironmentVariables()
+            .Build();
+
         public static void Main(string[] args)
         {
+
+
             Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(Configuration)
                 .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose)
                 .WriteTo.File("logs\\log.txt",rollingInterval:RollingInterval.Hour)
                 .CreateLogger();
@@ -31,6 +43,8 @@ namespace CoreWebApp
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+                .UseConfiguration(Configuration)
+                .UseStartup<Startup>()
+                .UseSerilog();
     }
 }
