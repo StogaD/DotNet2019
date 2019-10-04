@@ -60,8 +60,6 @@ namespace CoreWebApp
                 section.Bind(bindValue);
             };
 
-
-
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1",
