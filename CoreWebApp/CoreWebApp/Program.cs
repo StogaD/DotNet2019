@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CoreWebApp.Serilog;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
 
 namespace CoreWebApp
 {
@@ -27,12 +29,13 @@ namespace CoreWebApp
 
 
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(Configuration)
-                .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose)
-                .WriteTo.File("logs\\log.txt",rollingInterval:RollingInterval.Hour)
+                .Enrich.WithAppInfo()
+                .Enrich.WithMachineName()
+                .WriteTo.Console(LogEventLevel.Verbose,
+                "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{AppInfo}{NewLine}{Exception}")
                 .CreateLogger();
 
-            Log.Information("Start Application");
+            Log.Information("Start Application{MachineName}");
             Log.Debug("Debug message");
             
 

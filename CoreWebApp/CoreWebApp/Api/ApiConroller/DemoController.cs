@@ -28,7 +28,7 @@ namespace CoreWebApp.Api.ApiConroller
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            _logger.Information(messageTemplate: "Info from {0} - OK", propertyValue: nameof(DemoController));
+            _logger.Error("Demo");
 
             return new string[] { "value1", "value2" };
         }
