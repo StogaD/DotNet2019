@@ -27,12 +27,8 @@ namespace CoreWebApp
         public static void Main(string[] args)
         {
 
-
             Log.Logger = new LoggerConfiguration()
-                .Enrich.WithAppInfo()
-                .Enrich.WithMachineName()
-                .WriteTo.Console(LogEventLevel.Verbose,
-                "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{AppInfo}{NewLine}{Exception}")
+                .ReadFrom.Configuration(Configuration)
                 .CreateLogger();
 
             Log.Information("Start Application{MachineName}");
