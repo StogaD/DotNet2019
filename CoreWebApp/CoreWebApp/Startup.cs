@@ -61,6 +61,8 @@ namespace CoreWebApp
                 section.Bind(bindValue);
             };
 
+
+            services.AddSingleton(Log.Logger);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1",

@@ -6,6 +6,7 @@ using CoreWebApp.Api.Infrastructure;
 using CoreWebApp.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Serilog;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -17,14 +18,18 @@ namespace CoreWebApp.Api.ApiConroller
     public class DemoController : Controller
     {
         private readonly Parameters _parameters;
-        public DemoController(IOptions<Parameters> parameters)
+        private readonly ILogger _logger;
+        public DemoController(IOptions<Parameters> parameters, ILogger logger)
         {
             _parameters = parameters.Value;
+            _logger = logger;
         }
         // GET: api/<controller>
         [HttpGet]
         public IEnumerable<string> Get()
         {
+            _logger.Information(messageTemplate: "Info from {0} - OK", propertyValue: nameof(DemoController));
+
             return new string[] { "value1", "value2" };
         }
 
