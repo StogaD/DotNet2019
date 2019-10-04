@@ -10,5 +10,7 @@ namespace CoreWebApp.Configuration
         public int Speed { get; set; }
         public int Acceleration { get; set; }
         public  string Name { get; set; }
+        
+        public int Version { get; set; }
     }
 }

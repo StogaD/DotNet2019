@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CoreWebApp.Api.Infrastructure;
+using CoreWebApp.Configuration;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,6 +16,11 @@ namespace CoreWebApp.Api.ApiConroller
     [Route("api/[controller]")]
     public class DemoController : Controller
     {
+        private readonly Parameters _parameters;
+        public DemoController(IOptions<Parameters> parameters)
+        {
+            _parameters = parameters.Value;
+        }
         // GET: api/<controller>
         [HttpGet]
         public IEnumerable<string> Get()

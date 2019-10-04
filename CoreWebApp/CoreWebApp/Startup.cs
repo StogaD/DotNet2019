@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
@@ -37,6 +38,14 @@ namespace CoreWebApp
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddOptions<Parameters>().Configure(o => o.Version = 2);
+            services.Configure<Parameters>(Configuration.GetSection("Parameters"));
+            services.PostConfigure<Parameters>(x => x.Speed = x.Speed * 2);
+
+            using (var scope = services.BuildServiceProvider().CreateScope())
+            {
+                var paramtersRetrivedFromIOptions = scope.ServiceProvider.GetService<IOptions<Parameters>>();
+            }
 
             var url = Configuration.GetValue<string>("DescriptionUrl");
             var missingUrl = Configuration.GetValue<string>("url", "http://localhost:9200");
