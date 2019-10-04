@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
+using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
 
 namespace CoreWebApp
@@ -30,6 +31,7 @@ namespace CoreWebApp
 
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(Configuration)
+                .Enrich.WithExceptionDetails()
                 .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
                 {
                     AutoRegisterTemplate = true,
