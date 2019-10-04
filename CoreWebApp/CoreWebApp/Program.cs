@@ -7,6 +7,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace CoreWebApp
 {
@@ -14,7 +15,18 @@ namespace CoreWebApp
     {
         public static void Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.File("logs\\log.txt",rollingInterval:RollingInterval.Hour)
+                .CreateLogger();
+
+            Log.Information("Start Application");
+            Log.Debug("Debug message");
+            
+
             CreateWebHostBuilder(args).Build().Run();
+
+            Log.CloseAndFlush();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
