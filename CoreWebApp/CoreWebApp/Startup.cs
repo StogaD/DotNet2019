@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CoreWebApp.Api.Infrastructure;
+using CoreWebApp.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -35,6 +36,22 @@ namespace CoreWebApp
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
+
+            var url = Configuration.GetValue<string>("DescriptionUrl");
+            var missingUrl = Configuration.GetValue<string>("url", "http://localhost:9200");
+
+            var speed = Configuration.GetValue<int>("Parameters:Speed");
+
+            var section = Configuration.GetSection("Parameters");
+            if (section.Exists())
+            {
+                var getValue = section.GetValue(typeof(int), "Speed");
+                var bindValue = new Parameters();
+                section.Bind(bindValue);
+            };
+
+
 
             services.AddSwaggerGen(c =>
             {
