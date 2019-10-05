@@ -19,6 +19,7 @@ using CoreWebApp.Services;
 using Polly;
 using System.Net.Http;
 using Polly.Extensions.Http;
+using Polly.Retry;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -162,7 +163,27 @@ namespace CoreWebApp
 
         private IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
         {
+
+            RetryPolicy retry = Policy
+                .Handle<HttpRequestException>()
+                .Retry(2);
+
+            RetryPolicy retry2 = Policy
+                .Handle<HttpRequestException>()
+                .WaitAndRetry(new []
+                {
+                    TimeSpan.FromSeconds(1),
+                    TimeSpan.FromSeconds(2),
+                    TimeSpan.FromSeconds(4)
+                });
+
+            //Other Polly.Contrib.WaitAndRetry!
+
+
+
             Random jitterer = new Random();
+            //In prod use jitter from Polly.Contrib
+
             return HttpPolicyExtensions
                   .HandleTransientHttpError()
                   .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
