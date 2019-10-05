@@ -39,49 +39,11 @@ namespace CoreWebApp
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddOptions<Parameters>().Configure(o => o.Version = 2);
-            services.Configure<Parameters>(Configuration.GetSection("Parameters"));
-            services.PostConfigure<Parameters>(x => x.Speed = x.Speed * 2);
-
-            using (var scope = services.BuildServiceProvider().CreateScope())
-            {
-                var paramtersRetrivedFromIOptions = scope.ServiceProvider.GetService<IOptions<Parameters>>();
-            }
-
-            var url = Configuration.GetValue<string>("DescriptionUrl");
-            var missingUrl = Configuration.GetValue<string>("url", "http://localhost:9200");
-
-            var speed = Configuration.GetValue<int>("Parameters:Speed");
-
-            var section = Configuration.GetSection("Parameters");
-            if (section.Exists())
-            {
-                var getValue = section.GetValue(typeof(int), "Speed");
-                var bindValue = new Parameters();
-                section.Bind(bindValue);
-            };
+            DemoConfiguration(services);
+            DemoSwagger(services);
 
 
             services.AddSingleton(Log.Logger);
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1",
-                    new Info
-                    {
-                        Contact = new Contact { Email = "xxx@o2.pl", Name = "DawidS", Url = "http://google.pl" },
-                        Description = "Example API",
-                        License = new License { Name = "Licence name" },
-                        Title = "My API",
-                        Version = "Version 1"
-                    });
-                c.OperationFilter<AuthorizationHeaderOperationFilter>("myname");
-                var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath);
-            });
-
-
-
             services.AddMvc(options =>
             {
                 options.CacheProfiles.Add("Default30",
@@ -91,7 +53,6 @@ namespace CoreWebApp
                     });
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
-
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
@@ -122,5 +83,53 @@ namespace CoreWebApp
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
         }
+
+        private void DemoConfiguration(IServiceCollection services)
+        {
+            services.AddOptions<Parameters>().Configure(o => o.Version = 2);
+            services.Configure<Parameters>(Configuration.GetSection("Parameters"));
+            services.PostConfigure<Parameters>(x => x.Speed = x.Speed * 2);
+
+            using (var scope = services.BuildServiceProvider().CreateScope())
+            {
+                var paramtersRetrivedFromIOptions = scope.ServiceProvider.GetService<IOptions<Parameters>>();
+            }
+
+            var url = Configuration.GetValue<string>("DescriptionUrl");
+            var missingUrl = Configuration.GetValue<string>("url", "http://localhost:9200");
+
+            var speed = Configuration.GetValue<int>("Parameters:Speed");
+
+            var section = Configuration.GetSection("Parameters");
+            if (section.Exists())
+            {
+                var getValue = section.GetValue(typeof(int), "Speed");
+                var bindValue = new Parameters();
+                section.Bind(bindValue);
+            };
+
+        }
+
+        private void DemoSwagger(IServiceCollection services)
+        {
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1",
+                    new Info
+                    {
+                        Contact = new Contact { Email = "xxx@o2.pl", Name = "DawidS", Url = "http://google.pl" },
+                        Description = "Example API",
+                        License = new License { Name = "Licence name" },
+                        Title = "My API",
+                        Version = "Version 1"
+                    });
+                c.OperationFilter<AuthorizationHeaderOperationFilter>("myname");
+                var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
+        }
+
+
     }
 }
