@@ -162,10 +162,13 @@ namespace CoreWebApp
 
         private IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
         {
+            Random jitterer = new Random();
             return HttpPolicyExtensions
                   .HandleTransientHttpError()
                   .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
-                  .WaitAndRetryAsync(6, retryAttemp => TimeSpan.FromSeconds(Math.Pow(2, retryAttemp)));
+                  .WaitAndRetryAsync(6, retryAttemp =>
+                        TimeSpan.FromSeconds(Math.Pow(2, retryAttemp))
+                        + TimeSpan.FromMilliseconds(jitterer.Next(0, 100)));
         }
     }
 }
