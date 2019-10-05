@@ -16,6 +16,9 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
 using Serilog;
 using CoreWebApp.Services;
+using Polly;
+using System.Net.Http;
+using Polly.Extensions.Http;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -43,6 +46,7 @@ namespace CoreWebApp
             DemoConfiguration(services);
             DemoSwagger(services);
             DemoHttpClientFactory(services);
+            DemoPolly(services);
 
             services.AddSingleton(Log.Logger);
             services.AddMvc(options =>
@@ -135,7 +139,9 @@ namespace CoreWebApp
         {
             services.AddHttpClient();
             //  services.AddHttpClient<IAlbumService>(options => options.BaseAddress = new Uri("https://jsonplaceholder.typicode.com"));
-            services.AddHttpClient<IAlbumService, AlbumServiceWithTypedClient>();
+
+            // moved to PollyDemo 
+            //services.AddHttpClient<IAlbumService, AlbumServiceWithTypedClient>();
             services.AddHttpClient("photosClient", c =>
             {
                 c.BaseAddress = new Uri("https://jsonplaceholder.typicode.com");
@@ -145,6 +151,21 @@ namespace CoreWebApp
 
             services.AddTransient<IUserService, UserServiceWithBasicClientUsage>();
             services.AddTransient<IPhotosService, PhotosServiceWithNamedClient>();
+        }
+
+        private void DemoPolly(IServiceCollection services)
+        {
+            services.AddHttpClient<IAlbumService, AlbumServiceWithTypedClient>()
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5)) // default 2
+                .AddPolicyHandler(GetRetryPolicy());
+        }
+
+        private IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+        {
+            return HttpPolicyExtensions
+                  .HandleTransientHttpError()
+                  .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
+                  .WaitAndRetryAsync(6, retryAttemp => TimeSpan.FromSeconds(Math.Pow(2, retryAttemp)));
         }
     }
 }
