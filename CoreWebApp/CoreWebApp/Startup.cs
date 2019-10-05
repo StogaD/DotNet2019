@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
 using Serilog;
+using CoreWebApp.Services;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -42,6 +43,26 @@ namespace CoreWebApp
             services.AddOptions<Parameters>().Configure(o => o.Version = 2);
             services.Configure<Parameters>(Configuration.GetSection("Parameters"));
             services.PostConfigure<Parameters>(x => x.Speed = x.Speed * 2);
+
+            services.AddHttpClient();
+          //  services.AddHttpClient<IAlbumService>(options => options.BaseAddress = new Uri("https://jsonplaceholder.typicode.com"));
+            services.AddHttpClient<IAlbumService, AlbumServiceWithTypedClient>();
+            services.AddHttpClient("photosClient", c =>
+            {
+                c.BaseAddress = new Uri("https://jsonplaceholder.typicode.com");
+                c.DefaultRequestHeaders.Add("Accept", "application/json");
+                c.DefaultRequestHeaders.Add("User-Agent", "HttpClientFactory-Sample");
+            });
+      
+
+
+
+            services.AddTransient<IUserService, UserServiceWithBasicClientUsage>();
+            services.AddTransient<IPhotosService, PhotosServiceWithNamedClient>();
+
+
+
+
 
             using (var scope = services.BuildServiceProvider().CreateScope())
             {
