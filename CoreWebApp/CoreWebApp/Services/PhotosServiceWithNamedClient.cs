@@ -16,17 +16,15 @@ namespace CoreWebApp.Services
     public class PhotosServiceWithNamedClient : IPhotosService
     {
         private readonly IHttpClientFactory _clientFactory;
-
+        private const string _clientName = "photosClient";
+        private const string _remoteServiceBaseUrl = "https://jsonplaceholder.typicode.com/photos";
         public PhotosServiceWithNamedClient(IHttpClientFactory httpClientFactory)
         {
             _clientFactory = httpClientFactory;
         }
         public async Task<Photo> GetPhotoItem(int page)
         {
-            string _remoteServiceBaseUrl = "https://jsonplaceholder.typicode.com/photos";
-
-            var httpClient = _clientFactory.CreateClient("photos");
-
+            var httpClient = CreateHttpCLient();
 
             var ressponseString = await httpClient.GetStringAsync($"{_remoteServiceBaseUrl}/{page}");
             var category = JsonConvert.DeserializeObject<Photo>(ressponseString);
@@ -36,10 +34,10 @@ namespace CoreWebApp.Services
 
         public async Task<IEnumerable<Photo>> GetPhotos()
         {
-            var httpClient = _clientFactory.CreateClient("photos");
+            var httpClient = CreateHttpCLient();
 
             // create request explicitly
-            var request = new HttpRequestMessage(HttpMethod.Get, "/phptos");
+            var request = new HttpRequestMessage(HttpMethod.Get, "/photos");
             var response = await httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
@@ -47,6 +45,15 @@ namespace CoreWebApp.Services
             }
 
             return null;
+        }
+
+        private HttpClient CreateHttpCLient()
+        {
+            var httpClient = _clientFactory.CreateClient(_clientName);
+
+            httpClient.BaseAddress = new Uri(_remoteServiceBaseUrl);
+
+            return httpClient;
         }
     }
 }

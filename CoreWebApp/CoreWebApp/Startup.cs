@@ -45,8 +45,9 @@ namespace CoreWebApp
             services.PostConfigure<Parameters>(x => x.Speed = x.Speed * 2);
 
             services.AddHttpClient();
+          //  services.AddHttpClient<IAlbumService>(options => options.BaseAddress = new Uri("https://jsonplaceholder.typicode.com"));
             services.AddHttpClient<IAlbumService, AlbumServiceWithTypedClient>();
-            services.AddHttpClient("photos", c =>
+            services.AddHttpClient("photosClient", c =>
             {
                 c.BaseAddress = new Uri("https://jsonplaceholder.typicode.com");
                 c.DefaultRequestHeaders.Add("Accept", "application/json");
