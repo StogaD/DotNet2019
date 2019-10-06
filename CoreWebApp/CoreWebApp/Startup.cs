@@ -22,6 +22,7 @@ using Polly.Extensions.Http;
 using Polly.Retry;
 using Polly.Timeout;
 using Microsoft.Extensions.Logging;
+using CoreWebApp.Repository;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -50,6 +51,24 @@ namespace CoreWebApp
             DemoSwagger(services);
             DemoHttpClientFactory(services);
             DemoPolly(services);
+
+            var baseUrl = "https://jsonplaceholder.typicode.com";
+
+            var restClient = RestEase.RestClient.For<ICommentRepository>(baseUrl);
+
+            //not needed anymore - replaced by AddTypedClient - see in commit details
+            //using (var scope = services.BuildServiceProvider().CreateScope())
+            //{
+            //    var cf = scope.ServiceProvider.GetService<IHttpClientFactory>();
+            //    var httpClientPost = cf.CreateClient("jsonplaceholderClient");
+            //    var restClientPost = RestEase.RestClient.For<IPostRepository>(httpClientPost);
+            //    services.AddSingleton<IPostRepository>(restClientPost);
+            //}
+
+
+
+            services.AddSingleton<ICommentRepository>(p => restClient);
+            services.AddTransient<ICommentService, CommentServiceWithRestEase>();
 
             services.AddSingleton(Log.Logger);
             services.AddMvc(options =>
@@ -145,12 +164,14 @@ namespace CoreWebApp
 
             // moved to PollyDemo 
             //services.AddHttpClient<IAlbumService, AlbumServiceWithTypedClient>();
-            services.AddHttpClient("photosClient", c =>
+            services.AddHttpClient("jsonplaceholderClient", c =>
             {
                 c.BaseAddress = new Uri("https://jsonplaceholder.typicode.com");
                 c.DefaultRequestHeaders.Add("Accept", "application/json");
                 c.DefaultRequestHeaders.Add("User-Agent", "HttpClientFactory-Sample");
-            });
+            })
+            .AddTypedClient(c => RestEase.RestClient.For<IPostRepository>(c));
+
 
             services.AddTransient<IUserService, UserServiceWithBasicClientUsage>();
             services.AddTransient<IPhotosService, PhotosServiceWithNamedClient>();
