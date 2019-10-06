@@ -17,13 +17,14 @@ namespace CoreWebApp.Services
     {
         private readonly HttpClient _httpClient;
         private readonly string _remoteServiceBaseUrl = "https://jsonplaceholder.typicode.com/albums";
+        private readonly string _mockedBaseUrl = "https://testpolly.free.beeceptor.com/albums";
         public AlbumServiceWithTypedClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
         public async Task<Album> GetCatalogItems(int id)
         {
-            var ressponseString = await _httpClient.GetStringAsync($"{_remoteServiceBaseUrl}/{id}");
+            var ressponseString = await _httpClient.GetStringAsync($"{_mockedBaseUrl}/{id}");
             var category = JsonConvert.DeserializeObject<Album>(ressponseString);
 
             return category;
@@ -31,7 +32,7 @@ namespace CoreWebApp.Services
 
         public async Task<IEnumerable<Album>> GetAlbums()
         {
-            var ressponseString = await _httpClient.GetStringAsync(_remoteServiceBaseUrl);
+            var ressponseString = await _httpClient.GetStringAsync(_mockedBaseUrl);
             var albums = JsonConvert.DeserializeObject<IEnumerable<Album>>(ressponseString);
 
             return albums;
@@ -39,7 +40,7 @@ namespace CoreWebApp.Services
 
         public async Task<Album> GetAlbumItem(int id)
         {
-            var url = $"{_remoteServiceBaseUrl}/{id}";
+            var url = $"{_mockedBaseUrl}/{id}";
             var ressponseString = await _httpClient.GetStringAsync(url);
             var albums = JsonConvert.DeserializeObject<Album>(ressponseString);
 

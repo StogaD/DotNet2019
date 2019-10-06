@@ -35,7 +35,7 @@ namespace CoreWebApp
                 .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
                 {
                     AutoRegisterTemplate = true,
-                    MinimumLogEventLevel = LogEventLevel.Error,
+                    MinimumLogEventLevel = LogEventLevel.Information,
                 })
                 .CreateLogger();
 

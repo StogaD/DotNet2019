@@ -16,6 +16,12 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
 using Serilog;
 using CoreWebApp.Services;
+using Polly;
+using System.Net.Http;
+using Polly.Extensions.Http;
+using Polly.Retry;
+using Polly.Timeout;
+using Microsoft.Extensions.Logging;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -40,69 +46,12 @@ namespace CoreWebApp
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddOptions<Parameters>().Configure(o => o.Version = 2);
-            services.Configure<Parameters>(Configuration.GetSection("Parameters"));
-            services.PostConfigure<Parameters>(x => x.Speed = x.Speed * 2);
-
-            services.AddHttpClient();
-          //  services.AddHttpClient<IAlbumService>(options => options.BaseAddress = new Uri("https://jsonplaceholder.typicode.com"));
-            services.AddHttpClient<IAlbumService, AlbumServiceWithTypedClient>();
-            services.AddHttpClient("photosClient", c =>
-            {
-                c.BaseAddress = new Uri("https://jsonplaceholder.typicode.com");
-                c.DefaultRequestHeaders.Add("Accept", "application/json");
-                c.DefaultRequestHeaders.Add("User-Agent", "HttpClientFactory-Sample");
-            });
-      
-
-
-
-            services.AddTransient<IUserService, UserServiceWithBasicClientUsage>();
-            services.AddTransient<IPhotosService, PhotosServiceWithNamedClient>();
-
-
-
-
-
-            using (var scope = services.BuildServiceProvider().CreateScope())
-            {
-                var paramtersRetrivedFromIOptions = scope.ServiceProvider.GetService<IOptions<Parameters>>();
-            }
-
-            var url = Configuration.GetValue<string>("DescriptionUrl");
-            var missingUrl = Configuration.GetValue<string>("url", "http://localhost:9200");
-
-            var speed = Configuration.GetValue<int>("Parameters:Speed");
-
-            var section = Configuration.GetSection("Parameters");
-            if (section.Exists())
-            {
-                var getValue = section.GetValue(typeof(int), "Speed");
-                var bindValue = new Parameters();
-                section.Bind(bindValue);
-            };
-
+            DemoConfiguration(services);
+            DemoSwagger(services);
+            DemoHttpClientFactory(services);
+            DemoPolly(services);
 
             services.AddSingleton(Log.Logger);
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1",
-                    new Info
-                    {
-                        Contact = new Contact { Email = "xxx@o2.pl", Name = "DawidS", Url = "http://google.pl" },
-                        Description = "Example API",
-                        License = new License { Name = "Licence name" },
-                        Title = "My API",
-                        Version = "Version 1"
-                    });
-                c.OperationFilter<AuthorizationHeaderOperationFilter>("myname");
-                var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath);
-            });
-
-
-
             services.AddMvc(options =>
             {
                 options.CacheProfiles.Add("Default30",
@@ -142,6 +91,133 @@ namespace CoreWebApp
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private void DemoConfiguration(IServiceCollection services)
+        {
+            services.AddOptions<Parameters>().Configure(o => o.Version = 2);
+            services.Configure<Parameters>(Configuration.GetSection("Parameters"));
+            services.PostConfigure<Parameters>(x => x.Speed = x.Speed * 2);
+
+            using (var scope = services.BuildServiceProvider().CreateScope())
+            {
+                var paramtersRetrivedFromIOptions = scope.ServiceProvider.GetService<IOptions<Parameters>>();
+            }
+
+            var url = Configuration.GetValue<string>("DescriptionUrl");
+            var missingUrl = Configuration.GetValue<string>("url", "http://localhost:9200");
+            var speed = Configuration.GetValue<int>("Parameters:Speed");
+            var section = Configuration.GetSection("Parameters");
+
+            if (section.Exists())
+            {
+                var getValue = section.GetValue(typeof(int), "Speed");
+                var bindValue = new Parameters();
+                section.Bind(bindValue);
+            };
+
+        }
+
+        private void DemoSwagger(IServiceCollection services)
+        {
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1",
+                    new Info
+                    {
+                        Contact = new Contact { Email = "xxx@o2.pl", Name = "DawidS", Url = "http://google.pl" },
+                        Description = "Example API",
+                        License = new License { Name = "Licence name" },
+                        Title = "My API",
+                        Version = "Version 1"
+                    });
+                c.OperationFilter<AuthorizationHeaderOperationFilter>("myname");
+                var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
+        }
+
+        private void DemoHttpClientFactory(IServiceCollection services)
+        {
+            services.AddHttpClient();
+            //  services.AddHttpClient<IAlbumService>(options => options.BaseAddress = new Uri("https://jsonplaceholder.typicode.com"));
+
+            // moved to PollyDemo 
+            //services.AddHttpClient<IAlbumService, AlbumServiceWithTypedClient>();
+            services.AddHttpClient("photosClient", c =>
+            {
+                c.BaseAddress = new Uri("https://jsonplaceholder.typicode.com");
+                c.DefaultRequestHeaders.Add("Accept", "application/json");
+                c.DefaultRequestHeaders.Add("User-Agent", "HttpClientFactory-Sample");
+            });
+
+            services.AddTransient<IUserService, UserServiceWithBasicClientUsage>();
+            services.AddTransient<IPhotosService, PhotosServiceWithNamedClient>();
+        }
+
+        private void DemoPolly(IServiceCollection services)
+        {
+            //services.AddHttpClient<IAlbumService, AlbumServiceWithTypedClient>()
+            //    .SetHandlerLifetime(TimeSpan.FromMinutes(5)) // default 2
+            //    .AddPolicyHandler(GetRetryPolicy());
+
+
+
+            var shortTimeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(30);
+            services.AddHttpClient<IAlbumService, AlbumServiceWithTypedClient>()
+                .AddPolicyHandler((provider, request) =>
+                HttpPolicyExtensions.HandleTransientHttpError()
+                .WaitAndRetryAsync(
+                    new[]
+                    {
+                        TimeSpan.FromSeconds(1),
+                        TimeSpan.FromSeconds(3)
+                    },
+                    onRetryAsync: async (outcome, timespan, retryAttempt, context) =>
+                    {
+                        var logger = provider.GetService<ILogger<HttpClient>>();
+                        var logLevel = outcome.Exception != null ? LogLevel.Error : LogLevel.Warning;
+                        logger.Log(
+                            logLevel, outcome.Exception,
+                            "Delaying for {delay}ms, then making retry {retry}.",
+                            timespan.TotalMilliseconds,
+                            retryAttempt);
+                        await Task.CompletedTask;
+                    }))
+                    .AddPolicyHandler(shortTimeoutPolicy);
+                    
+
+        }
+
+        private IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+        {
+
+            RetryPolicy retry = Policy
+                .Handle<HttpRequestException>()  // 5xx or 408 (timeout)
+                .Or<TimeoutRejectedException>() //describe
+                .Retry(2);
+
+            RetryPolicy retry2 = Policy
+                .Handle<HttpRequestException>()
+                .WaitAndRetry(new []
+                {
+                    TimeSpan.FromSeconds(1),
+                    TimeSpan.FromSeconds(2),
+                    TimeSpan.FromSeconds(4)
+                });
+
+            //Other Polly.Contrib.WaitAndRetry!
+
+            Random jitterer = new Random();
+            //In prod use jitter from Polly.Contrib
+
+            return HttpPolicyExtensions
+                  .HandleTransientHttpError()
+                  .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
+                  .WaitAndRetryAsync(6, retryAttemp =>
+                        TimeSpan.FromSeconds(Math.Pow(2, retryAttemp))
+                        + TimeSpan.FromMilliseconds(jitterer.Next(0, 100)));
         }
     }
 }
