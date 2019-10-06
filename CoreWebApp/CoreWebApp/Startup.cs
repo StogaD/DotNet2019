@@ -56,6 +56,14 @@ namespace CoreWebApp
 
             var restClient = RestEase.RestClient.For<ICommentRepository>(baseUrl);
 
+            using (var scope = services.BuildServiceProvider().CreateScope())
+            {
+                var cf = scope.ServiceProvider.GetService<IHttpClientFactory>();
+                var httpClientPost = cf.CreateClient("jsonplaceholderClient");
+                var restClientPost = RestEase.RestClient.For<IPostRepository>(httpClientPost);
+                services.AddSingleton<IPostRepository>(restClientPost);
+            }
+
 
             services.AddSingleton<ICommentRepository>(p => restClient);
             services.AddTransient<ICommentService, CommentServiceWithRestEase>();
@@ -154,12 +162,13 @@ namespace CoreWebApp
 
             // moved to PollyDemo 
             //services.AddHttpClient<IAlbumService, AlbumServiceWithTypedClient>();
-            services.AddHttpClient("photosClient", c =>
+            services.AddHttpClient("jsonplaceholderClient", c =>
             {
                 c.BaseAddress = new Uri("https://jsonplaceholder.typicode.com");
                 c.DefaultRequestHeaders.Add("Accept", "application/json");
                 c.DefaultRequestHeaders.Add("User-Agent", "HttpClientFactory-Sample");
             });
+
 
             services.AddTransient<IUserService, UserServiceWithBasicClientUsage>();
             services.AddTransient<IPhotosService, PhotosServiceWithNamedClient>();

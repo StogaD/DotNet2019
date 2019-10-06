@@ -16,7 +16,7 @@ namespace CoreWebApp.Services
     public class PhotosServiceWithNamedClient : IPhotosService
     {
         private readonly IHttpClientFactory _clientFactory;
-        private const string _clientName = "photosClient";
+        private const string _clientName = "jsonplaceholderClient";
         private const string _remoteServiceBaseUrl = "https://jsonplaceholder.typicode.com/photos";
         public PhotosServiceWithNamedClient(IHttpClientFactory httpClientFactory)
         {
