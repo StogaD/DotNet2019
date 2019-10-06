@@ -20,6 +20,8 @@ using Polly;
 using System.Net.Http;
 using Polly.Extensions.Http;
 using Polly.Retry;
+using Polly.Timeout;
+using Microsoft.Extensions.Logging;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -156,16 +158,44 @@ namespace CoreWebApp
 
         private void DemoPolly(IServiceCollection services)
         {
+            //services.AddHttpClient<IAlbumService, AlbumServiceWithTypedClient>()
+            //    .SetHandlerLifetime(TimeSpan.FromMinutes(5)) // default 2
+            //    .AddPolicyHandler(GetRetryPolicy());
+
+
+
+            var shortTimeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(30);
             services.AddHttpClient<IAlbumService, AlbumServiceWithTypedClient>()
-                .SetHandlerLifetime(TimeSpan.FromMinutes(5)) // default 2
-                .AddPolicyHandler(GetRetryPolicy());
+                .AddPolicyHandler((provider, request) =>
+                HttpPolicyExtensions.HandleTransientHttpError()
+                .WaitAndRetryAsync(
+                    new[]
+                    {
+                        TimeSpan.FromSeconds(1),
+                        TimeSpan.FromSeconds(3)
+                    },
+                    onRetryAsync: async (outcome, timespan, retryAttempt, context) =>
+                    {
+                        var logger = provider.GetService<ILogger<HttpClient>>();
+                        var logLevel = outcome.Exception != null ? LogLevel.Error : LogLevel.Warning;
+                        logger.Log(
+                            logLevel, outcome.Exception,
+                            "Delaying for {delay}ms, then making retry {retry}.",
+                            timespan.TotalMilliseconds,
+                            retryAttempt);
+                        await Task.CompletedTask;
+                    }))
+                    .AddPolicyHandler(shortTimeoutPolicy);
+                    
+
         }
 
         private IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
         {
 
             RetryPolicy retry = Policy
-                .Handle<HttpRequestException>()
+                .Handle<HttpRequestException>()  // 5xx or 408 (timeout)
+                .Or<TimeoutRejectedException>() //describe
                 .Retry(2);
 
             RetryPolicy retry2 = Policy
@@ -178,8 +208,6 @@ namespace CoreWebApp
                 });
 
             //Other Polly.Contrib.WaitAndRetry!
-
-
 
             Random jitterer = new Random();
             //In prod use jitter from Polly.Contrib
