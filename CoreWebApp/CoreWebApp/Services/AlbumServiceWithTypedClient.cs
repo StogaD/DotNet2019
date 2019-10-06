@@ -21,6 +21,7 @@ namespace CoreWebApp.Services
         public AlbumServiceWithTypedClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
+
         }
         public async Task<Album> GetCatalogItems(int id)
         {

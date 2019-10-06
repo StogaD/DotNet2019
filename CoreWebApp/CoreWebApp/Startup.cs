@@ -22,6 +22,7 @@ using Polly.Extensions.Http;
 using Polly.Retry;
 using Polly.Timeout;
 using Microsoft.Extensions.Logging;
+using CoreWebApp.Repository;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -50,6 +51,14 @@ namespace CoreWebApp
             DemoSwagger(services);
             DemoHttpClientFactory(services);
             DemoPolly(services);
+
+            var baseUrl = "https://jsonplaceholder.typicode.com";
+
+            var restClient = RestEase.RestClient.For<ICommentRepository>(baseUrl);
+
+
+            services.AddSingleton<ICommentRepository>(p => restClient);
+            services.AddTransient<ICommentService, CommentServiceWithRestEase>();
 
             services.AddSingleton(Log.Logger);
             services.AddMvc(options =>
