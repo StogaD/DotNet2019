@@ -25,6 +25,7 @@ using Microsoft.Extensions.Logging;
 using CoreWebApp.Repository;
 using MediatR;
 using System.Reflection;
+using CoreWebApp.MediatR;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -75,6 +76,9 @@ namespace CoreWebApp
             services.AddSingleton(Log.Logger);
 
             services.AddMediatR(Assembly.GetExecutingAssembly());
+
+            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineFirst<,>));
+            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineSecond<,>));
 
             services.AddMvc(options =>
             {
