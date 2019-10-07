@@ -26,6 +26,7 @@ using CoreWebApp.Repository;
 using MediatR;
 using System.Reflection;
 using CoreWebApp.MediatR;
+using Microsoft.AspNetCore.Identity;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -80,6 +81,7 @@ namespace CoreWebApp
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineFirst<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineSecond<,>));
 
+       
             services.AddMvc(options =>
             {
                 options.CacheProfiles.Add("Default30",
@@ -113,6 +115,8 @@ namespace CoreWebApp
                c.SwaggerEndpoint("/swagger/v1/swagger.json", "MyAPI");
                c.RoutePrefix = string.Empty;
            });
+
+            app.UseAuthentication();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
