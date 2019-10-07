@@ -23,6 +23,9 @@ using Polly.Retry;
 using Polly.Timeout;
 using Microsoft.Extensions.Logging;
 using CoreWebApp.Repository;
+using MediatR;
+using System.Reflection;
+using CoreWebApp.MediatR;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -71,6 +74,12 @@ namespace CoreWebApp
             services.AddTransient<ICommentService, CommentServiceWithRestEase>();
 
             services.AddSingleton(Log.Logger);
+
+            services.AddMediatR(Assembly.GetExecutingAssembly());
+
+            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineFirst<,>));
+            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineSecond<,>));
+
             services.AddMvc(options =>
             {
                 options.CacheProfiles.Add("Default30",
