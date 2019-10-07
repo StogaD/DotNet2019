@@ -24,6 +24,7 @@ using Polly.Timeout;
 using Microsoft.Extensions.Logging;
 using CoreWebApp.Repository;
 using MediatR;
+using System.Reflection;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -73,7 +74,7 @@ namespace CoreWebApp
 
             services.AddSingleton(Log.Logger);
 
-            services.AddMediatR(typeof(Startup).Assembly);
+            services.AddMediatR(Assembly.GetExecutingAssembly());
 
             services.AddMvc(options =>
             {

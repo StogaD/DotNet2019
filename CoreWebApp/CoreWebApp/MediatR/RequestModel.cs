@@ -10,4 +10,9 @@ namespace CoreWebApp.MediatR
     {
         public string Message { get; set; }
     }
+
+    public class OneWayRequestModel : IRequest
+    {
+        public string Message { get; set; }
+    }
 }
