@@ -21,12 +21,19 @@ namespace CoreWebApp.Api.ApiConroller
         }
         // GET: api/<controller>
         [HttpGet]
-        public IEnumerable<string> TestMediatR(EventModel model)
+        public IEnumerable<string> TestMediatRSimpleNotification(EventModel model)
         {
 
             _mediator.Publish<EventModel>(model);
 
             return new string[] { "value1", "value2" };
+        }
+        [HttpGet("/testRequest")]
+        public async Task<string> TestMediatRRequest(string message)
+        {
+
+            return await _mediator.Send(new RequestModel { Message = message });
+           
         }
 
         // GET api/<controller>/5
