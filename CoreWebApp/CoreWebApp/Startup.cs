@@ -30,6 +30,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using CoreWebApp.TokenOption;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -53,6 +54,9 @@ namespace CoreWebApp
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
+
+            services.Configure<JwtTokenOptions>(Configuration.GetSection("JwtTokenOptions"));
 
             DemoConfiguration(services);
             DemoSwagger(services);
@@ -92,7 +96,7 @@ namespace CoreWebApp
 
             //    });
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+            //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 
             services.AddMvc(options =>
             {
