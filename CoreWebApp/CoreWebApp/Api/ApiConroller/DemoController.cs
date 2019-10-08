@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoreWebApp.Api.Infrastructure;
 using CoreWebApp.Configuration;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -35,6 +36,7 @@ namespace CoreWebApp.Api.ApiConroller
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
+        [Authorize]
         [ApiConventionMethod(typeof(CustomApiConvention), "Demo")]
         public string DemoGet(int id)
         {

@@ -26,6 +26,8 @@ using CoreWebApp.Repository;
 using MediatR;
 using System.Reflection;
 using CoreWebApp.MediatR;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -79,6 +81,15 @@ namespace CoreWebApp
 
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineFirst<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineSecond<,>));
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(opt=>
+                {
+                    opt.Events.OnRedirectToLogin = (r) =>
+                    {
+                        r.Response.StatusCode = 401;
+                        return Task.FromResult(0);
+                    };
+                });
 
             services.AddMvc(options =>
             {
@@ -113,6 +124,7 @@ namespace CoreWebApp
                c.SwaggerEndpoint("/swagger/v1/swagger.json", "MyAPI");
                c.RoutePrefix = string.Empty;
            });
+            app.UseAuthentication();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
