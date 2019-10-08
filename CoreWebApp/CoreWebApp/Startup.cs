@@ -27,6 +27,9 @@ using MediatR;
 using System.Reflection;
 using CoreWebApp.MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Cookies;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -81,7 +84,16 @@ namespace CoreWebApp
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineFirst<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineSecond<,>));
 
-       
+
+            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+
+            //    .AddJwtBearer(options =>
+            //    {
+
+            //    });
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+
             services.AddMvc(options =>
             {
                 options.CacheProfiles.Add("Default30",
@@ -117,6 +129,8 @@ namespace CoreWebApp
            });
 
             app.UseAuthentication();
+
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
