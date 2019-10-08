@@ -32,6 +32,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using CoreWebApp.TokenOption;
 using System.Net;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using JWTAPI.Security.Tokens;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -64,7 +67,14 @@ namespace CoreWebApp
                 };
             });
 
+            var signingConfigurations = new SigningConfigurations();
+            services.AddSingleton(signingConfigurations);
+
             services.Configure<JwtTokenOptions>(Configuration.GetSection("JwtTokenOptions"));
+
+ 
+
+
 
             DemoConfiguration(services);
             DemoSwagger(services);
@@ -114,6 +124,40 @@ namespace CoreWebApp
                         Duration = 30
                     });
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+     .AddJwtBearer(jwtOptions =>
+     {
+         TokenValidationParameters tokenValidationParameters = GetTokenValidationParameters(signingConfigurations);
+         jwtOptions.TokenValidationParameters = tokenValidationParameters;
+     });
+        }
+
+        private TokenValidationParameters GetTokenValidationParameters(SigningConfigurations signingConfigurations)
+        {
+
+            // secretKey contains a secret passphrase only your server knows
+            var secretKey = Configuration.GetSection("JwtTokenOptions:SecretKey").Value;
+            var issuer = Configuration.GetSection("JwtTokenOptions:Issuer").Value;
+            var audience = Configuration.GetSection("JwtTokenOptions:Audience").Value;
+            var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
+            return new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,//
+                IssuerSigningKey = signingConfigurations.Key,//
+
+                // Validate the JWT Issuer (iss) claim
+                ValidateIssuer = true,
+                ValidIssuer = issuer,//
+
+                ValidateLifetime = true,//
+
+
+                // Validate the JWT Audience (aud) claim
+                ValidateAudience = true, //
+                ValidAudience = audience,//
+                ClockSkew = TimeSpan.Zero//
+            };
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

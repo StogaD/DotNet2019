@@ -20,7 +20,7 @@ namespace CoreWebApp.Areas.Identity
                     options.UseSqlServer(
                         context.Configuration.GetConnectionString("CoreWebAppContextConnection")));
 
-                services.AddIdentity<IdentityUser, IdentityRole>()
+                services.AddDefaultIdentity<IdentityUser>()
              //   .AddDefaultUI()
                 .AddEntityFrameworkStores<CoreWebAppContext>();
             });
