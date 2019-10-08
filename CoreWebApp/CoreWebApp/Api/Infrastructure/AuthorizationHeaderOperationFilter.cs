@@ -49,9 +49,9 @@ namespace CoreWebApp.Api.Infrastructure
                 new BodyParameter
                 {
                     Description = "Bearer token",
-                    @In = "Header",
+                    In = "header",
                     Name = "Authorization",
-                    Required = false,
+                    Required = true,
                     Schema = new Schema { Type = "string" }
                 });
 

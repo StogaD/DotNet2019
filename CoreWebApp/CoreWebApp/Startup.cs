@@ -31,6 +31,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using CoreWebApp.TokenOption;
+using System.Net;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -54,7 +55,14 @@ namespace CoreWebApp
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
+            services.ConfigureApplicationCookie(configure =>
+            {
+                configure.Events.OnRedirectToLogin = (ctx) =>
+                {
+                    ctx.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    return Task.FromResult(0);
+                };
+            });
 
             services.Configure<JwtTokenOptions>(Configuration.GetSection("JwtTokenOptions"));
 
