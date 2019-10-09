@@ -21,10 +21,12 @@ namespace CoreWebApp.Api.ApiConroller
     {
         private readonly Parameters _parameters;
         private readonly ILogger _logger;
-        public ProtectedController(IOptions<Parameters> parameters, ILogger logger)
+        private readonly IAuthorizationService _authService;
+        public ProtectedController(IOptions<Parameters> parameters, ILogger logger, IAuthorizationService authService)
         {
             _parameters = parameters.Value;
             _logger = logger;
+            _authService = authService;
         }
         // GET: api/<controller>
         [HttpGet]
@@ -45,8 +47,15 @@ namespace CoreWebApp.Api.ApiConroller
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody]string value)
+        public async Task Post([FromBody]string value)
         {
+            var resouse = new Resource(value);
+            var isAuthorized = await _authService.AuthorizeAsync(User, resouse, "Write");
+
+            if (isAuthorized.Succeeded)
+            {
+                //perform some job
+            }
         }
 
         // PUT api/<controller>/5
