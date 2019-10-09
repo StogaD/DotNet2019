@@ -44,13 +44,14 @@ namespace CoreWebApp.Api.ApiConroller
 
             //for test purpose . should be retrived from Db
             var mockDbChanges = DateTime.Now;
-            
+          
             var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, user.Email),
-                    new Claim("FullName", user.FullName),
-                    new Claim(ClaimTypes.Role, "Administrator"),
-                    new Claim("LastChanged", mockDbChanges.ToString())
+                new Claim(ClaimTypes.Name, user.Email),
+                new Claim(ClaimTypes.DateOfBirth, new DateTime(1984,02,20).ToString()),
+                new Claim("FullName", user.FullName),
+                new Claim(ClaimTypes.Role, "Administrator"),
+                new Claim("LastChanged", mockDbChanges.ToString())
                 };
 
             var claimsIdentity = new ClaimsIdentity(

@@ -17,11 +17,11 @@ namespace CoreWebApp.Api.ApiConroller
     [ApiController]
     [ApiConventionType(typeof(CustomApiConvention))]
     [Route("api/[controller]")]
-    public class DemoController : Controller
+    public class ProtectedController : Controller
     {
         private readonly Parameters _parameters;
         private readonly ILogger _logger;
-        public DemoController(IOptions<Parameters> parameters, ILogger logger)
+        public ProtectedController(IOptions<Parameters> parameters, ILogger logger)
         {
             _parameters = parameters.Value;
             _logger = logger;
@@ -30,27 +30,21 @@ namespace CoreWebApp.Api.ApiConroller
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            _logger.Error("Demo");
+            _logger.Error("Protected");
 
             return new string[] { "value1", "value2" };
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Policy= "namePolicy")]
-        [Authorize(Policy = "domainPolicy")]
-        [ApiConventionMethod(typeof(CustomApiConvention), "Demo")]
-        public string DemoGet(int id)
+        [Authorize(Policy = "minimumAge")]
+        public string ProtectedGet(int id)
         {
             return "value";
         }
 
         // POST api/<controller>
         [HttpPost]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(201)]
-        [ProducesResponseType(401)]
-        [Authorize(Roles = "Administrator", Policy = "namePolicy")]
         public void Post([FromBody]string value)
         {
         }
@@ -63,7 +57,6 @@ namespace CoreWebApp.Api.ApiConroller
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        //[MinimumAgeAuthorize(10)]
         public void Delete(int id)
         {
         }

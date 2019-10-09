@@ -82,6 +82,12 @@ namespace CoreWebApp
 
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineFirst<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineSecond<,>));
+
+
+           /* By default, DefaultAuthorizationPolicyProvider is registered and used.
+              DefaultAuthorizationPolicyProvider returns policies from the AuthorizationOptions 
+              provided in an IServiceCollection.AddAuthorization call.
+           */
             services.AddAuthorization(options =>
             {
                 //1. sample aggregation policy 
@@ -91,7 +97,11 @@ namespace CoreWebApp
                 options.AddPolicy("namePolicy", policy => policy.RequireClaim("FullName", "dawids"));
                 //3. Add custom requiremny from separate file
                 options.AddPolicy("domainPolicy", policy => policy.AddRequirements(new AdditionalPolicyRequirement("contoso.com")));
+
+                options.AddPolicy("minimumAge", policy => policy.AddRequirements(new MinimumAgePolicy(18)));
+
             });
+
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(opt=>
