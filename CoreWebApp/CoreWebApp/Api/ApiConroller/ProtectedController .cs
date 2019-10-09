@@ -37,7 +37,7 @@ namespace CoreWebApp.Api.ApiConroller
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Policy = "minimumAge")]
+        [MinimumAgeAuthorize(20)]
         public string ProtectedGet(int id)
         {
             return "value";

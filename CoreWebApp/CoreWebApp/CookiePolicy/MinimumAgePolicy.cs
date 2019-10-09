@@ -6,15 +6,15 @@ using System;
 
 namespace CoreWebApp
 {
-    internal class MinimumAgePolicy : AuthorizationHandler<MinimumAgePolicy>, IAuthorizationRequirement
+    internal class MinimumAgepolicyRequirement : AuthorizationHandler<MinimumAgepolicyRequirement>, IAuthorizationRequirement
     {
         private readonly int _age;
-        public MinimumAgePolicy(int age)
+        public MinimumAgepolicyRequirement(int age)
         {
             _age = age;
         }
 
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, MinimumAgePolicy requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, MinimumAgepolicyRequirement requirement)
         {
             if (!context.User.HasClaim(c => c.Type == ClaimTypes.DateOfBirth))
             {
