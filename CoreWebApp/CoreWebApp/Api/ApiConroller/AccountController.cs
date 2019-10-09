@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -38,11 +39,15 @@ namespace CoreWebApp.Api.ApiConroller
                 FullName = "Maria Rodriguez"
             };
 
+            //for test purpose . should be retrived from Db
+            var mockDbChanges = DateTime.Now;
+            
             var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.Email),
                     new Claim("FullName", user.FullName),
                     new Claim(ClaimTypes.Role, "Administrator"),
+                    new Claim("LastChanged", mockDbChanges.ToString())
                 };
 
             var claimsIdentity = new ClaimsIdentity(

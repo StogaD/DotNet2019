@@ -28,6 +28,7 @@ using System.Reflection;
 using CoreWebApp.MediatR;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using CoreWebApp.CookiePolicy;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -84,13 +85,26 @@ namespace CoreWebApp
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(opt=>
                 {
+                    //validated on each request which could  affect the performance!!
+                    opt.EventsType = typeof(CustomCookieAuthenticationEvents);
+
+                    /*this was overwritten by above code. So move to the CustomCookiesAuth
                     opt.Events.OnRedirectToLogin = (r) =>
                     {
                         r.Response.StatusCode = 401;
                         return Task.FromResult(0);
-                    };
+                    };*/
                 });
 
+
+            services.AddScoped<CustomCookieAuthenticationEvents>(sp => new CustomCookieAuthenticationEvents()
+            {
+                OnRedirectToLogin = (r) =>
+                {
+                    r.Response.StatusCode = 401;
+                    return Task.FromResult(0);
+                }
+            });
             services.AddMvc(options =>
             {
                 options.CacheProfiles.Add("Default30",
