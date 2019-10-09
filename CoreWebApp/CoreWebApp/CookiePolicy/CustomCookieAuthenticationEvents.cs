@@ -25,9 +25,8 @@ namespace CoreWebApp.CookiePolicy
             //Only for test purpose -  it shoud check the last chanhe in DB
             if (DateTime.TryParse(lastChanged, out var _dateTime))
             {
-                var timeSpan = TimeSpan.FromMinutes(2);
 
-                if (DateTime.Now.CompareTo(_dateTime.Add(timeSpan))> 0)
+                if (DateTime.Now.CompareTo(_dateTime.AddMinutes(10))> 0)
                    {
                     context.RejectPrincipal();
                     context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
