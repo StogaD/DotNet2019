@@ -84,7 +84,12 @@ namespace CoreWebApp
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineSecond<,>));
             services.AddAuthorization(options =>
             {
+                //1. sample aggregation policy 
+                options.AddPolicy("AggregatePolicy", policy => policy.RequireAssertion(
+                    ctx => ctx.User.HasClaim(c => c.Issuer == "https://microsoftsecurity" && c.Type == "type1")));
+                //2. Policy.RequireClaims, requireRole..
                 options.AddPolicy("namePolicy", policy => policy.RequireClaim("FullName", "dawids"));
+                //3. Add custom requiremny from separate file
                 options.AddPolicy("domainPolicy", policy => policy.AddRequirements(new AdditionalPolicyRequirement("contoso.com")));
             });
 
