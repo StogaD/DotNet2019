@@ -36,7 +36,7 @@ namespace CoreWebApp.Api.ApiConroller
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Roles = "Manager")]
+        [Authorize(Policy= "namePolicy")]
         [ApiConventionMethod(typeof(CustomApiConvention), "Demo")]
         public string DemoGet(int id)
         {
@@ -48,7 +48,7 @@ namespace CoreWebApp.Api.ApiConroller
         [ProducesResponseType(404)]
         [ProducesResponseType(201)]
         [ProducesResponseType(401)]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator", Policy = "namePolicy")]
         public void Post([FromBody]string value)
         {
         }

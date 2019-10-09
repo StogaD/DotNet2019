@@ -82,6 +82,10 @@ namespace CoreWebApp
 
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineFirst<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineSecond<,>));
+            services.AddAuthorization(options =>
+           options.AddPolicy("namePolicy",
+                      policy => policy.RequireClaim("FullName","dawids")));
+
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(opt=>
                 {
@@ -103,8 +107,14 @@ namespace CoreWebApp
                 {
                     r.Response.StatusCode = 401;
                     return Task.FromResult(0);
+                },
+                OnRedirectToAccessDenied  = (r) =>
+                {
+                    r.Response.StatusCode = 403;
+                    return Task.FromResult(0);
                 }
             });
+
             services.AddMvc(options =>
             {
                 options.CacheProfiles.Add("Default30",
