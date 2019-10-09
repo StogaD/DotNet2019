@@ -21,7 +21,12 @@ namespace CoreWebApp.Api.ApiConroller
             _logger = logger;
         }
 
-        [HttpPost]
+        [HttpPost("Logout")]
+        public async Task Logout()
+        {
+            await HttpContext.SignOutAsync( CookieAuthenticationDefaults.AuthenticationScheme);
+        }
+        [HttpPost("login")]
         public async Task<IActionResult> Login()
         {
             _logger.LogInformation("User {Name} logged out at {Time}.",
@@ -51,8 +56,6 @@ namespace CoreWebApp.Api.ApiConroller
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity));
-
-           
 
             return Ok();
         }
