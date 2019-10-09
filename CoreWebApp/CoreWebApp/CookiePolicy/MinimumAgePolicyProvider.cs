@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 
 namespace CoreWebApp.CookiePolicy
 {
@@ -11,6 +12,11 @@ namespace CoreWebApp.CookiePolicy
     {
         const string POLICY_PREFIX = "MinimumAge";
         public DefaultAuthorizationPolicyProvider FallbackPolicyProvider { get; }
+
+        public MinimumAgePolicyProvider(IOptions<AuthorizationOptions> options)
+        {
+            FallbackPolicyProvider = new DefaultAuthorizationPolicyProvider(options);
+        }
         public async Task<AuthorizationPolicy> GetDefaultPolicyAsync() => await FallbackPolicyProvider.GetDefaultPolicyAsync();
 
 

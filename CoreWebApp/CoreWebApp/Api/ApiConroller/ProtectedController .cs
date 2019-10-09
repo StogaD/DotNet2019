@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using CoreWebApp.Api.Infrastructure;
 using CoreWebApp.Configuration;
 using CoreWebApp.CookiePolicy;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -30,6 +32,7 @@ namespace CoreWebApp.Api.ApiConroller
         }
         // GET: api/<controller>
         [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public IEnumerable<string> Get()
         {
             _logger.Error("Protected");

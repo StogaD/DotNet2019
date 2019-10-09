@@ -85,29 +85,29 @@ namespace CoreWebApp
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineSecond<,>));
 
 
-           /* By default, DefaultAuthorizationPolicyProvider is registered and used.
-              DefaultAuthorizationPolicyProvider returns policies from the AuthorizationOptions 
-              provided in an IServiceCollection.AddAuthorization call.
-           */
-            //services.AddAuthorization(options =>
-            //{
-            //    //1. sample aggregation policy 
-            //    options.AddPolicy("AggregatePolicy", policy => policy.RequireAssertion(
-            //        ctx => ctx.User.HasClaim(c => c.Issuer == "https://microsoftsecurity" && c.Type == "type1")));
-            //    //2. Policy.RequireClaims, requireRole..
-            //    options.AddPolicy("namePolicy", policy => policy.RequireClaim("FullName", "dawids"));
-            //    //3. Add custom requiremny from separate file
-            //    options.AddPolicy("domainPolicy", policy => policy.AddRequirements(new AdditionalPolicyRequirement("contoso.com")));
+            /* By default, DefaultAuthorizationPolicyProvider is registered and used.
+               DefaultAuthorizationPolicyProvider returns policies from the AuthorizationOptions 
+               provided in an IServiceCollection.AddAuthorization call.
+            */
+            services.AddAuthorization(options =>
+            {
+                //1. sample aggregation policy 
+                options.AddPolicy("AggregatePolicy", policy => policy.RequireAssertion(
+                    ctx => ctx.User.HasClaim(c => c.Issuer == "https://microsoftsecurity" && c.Type == "type1")));
+                //2. Policy.RequireClaims, requireRole..
+                options.AddPolicy("namePolicy", policy => policy.RequireClaim("FullName", "dawids"));
+                //3. Add custom requiremny from separate file
+                options.AddPolicy("domainPolicy", policy => policy.AddRequirements(new AdditionalPolicyRequirement("contoso.com")));
 
-            //    options.AddPolicy("minimumAge", policy => policy.AddRequirements(new MinimumAgepolicyRequirement(18)));
+                options.AddPolicy("minimumAge", policy => policy.AddRequirements(new MinimumAgepolicyRequirement(18)));
 
-            //});
+            });
 
             services.AddSingleton<IAuthorizationPolicyProvider, MinimumAgePolicyProvider>();
 
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(opt=>
+                .AddCookie(opt =>
                 {
                     //validated on each request which could  affect the performance!!
                     opt.EventsType = typeof(CustomCookieAuthenticationEvents);
@@ -118,7 +118,8 @@ namespace CoreWebApp
                         r.Response.StatusCode = 401;
                         return Task.FromResult(0);
                     };*/
-                });
+                })
+                .AddJwtBearer();
 
 
             services.AddScoped<CustomCookieAuthenticationEvents>(sp => new CustomCookieAuthenticationEvents()
