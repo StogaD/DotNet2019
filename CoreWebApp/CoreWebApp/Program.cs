@@ -54,18 +54,28 @@ namespace CoreWebApp
                 .UseConfiguration(Configuration)
             .ConfigureAppConfiguration((ctx, con) =>
             {
-                //work only with CurrentUser cert. LocalMachine return 500.03 
-                var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
-                store.Open(OpenFlags.ReadOnly);
-                var certs = store.Certificates.Find(X509FindType.FindByThumbprint, Configuration["AzureADCertThumbprint"], false);
-                var cert = certs.OfType<X509Certificate2>().Single();
-                var appId = Configuration["AzureADApplicationId"];
+                //disable - work only with valid cert on machine !
+                var azureKeyVaultConfigurationProvider_Enabled = false;
 
-                con.AddAzureKeyVault($"https://stogakeyvault.vault.azure.net/",
-                                     "d486965c-20e5-4fd4-b51a-2d7e7a9f8a5f",
-                                     cert);
+                if (azureKeyVaultConfigurationProvider_Enabled)
+                {
 
-                store.Close();
+                    //work only with CurrentUser cert. LocalMachine return 500
+                    var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+                    store.Open(OpenFlags.ReadOnly);
+                    var certs = store.Certificates.Find(X509FindType.FindByThumbprint, Configuration["KeyVaultOptions:AzureADCertThumbprint"], false);
+                    var cert = certs.OfType<X509Certificate2>().Single();
+                    var appId = Configuration["KeyVaultOptions:AzureADApplicationId"];
+
+                    con.AddAzureKeyVault($"https://stogakeyvault.vault.azure.net/",
+                                            "d486965c-20e5-4fd4-b51a-2d7e7a9f8a5f",
+                                            cert);
+                    store.Close();
+
+
+
+                }
+               
 
 
 

@@ -13,4 +13,10 @@ namespace CoreWebApp.Configuration
         
         public int Version { get; set; }
     }
+
+    public class KeyVaultOptions
+    {
+        public string KeyVaultName { get; set; }
+        public string SecretName { get; set; }
+    }
 }

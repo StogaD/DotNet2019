@@ -29,6 +29,7 @@ using CoreWebApp.MediatR;
 using System.Data.SqlClient;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
 using System.Security.Cryptography.X509Certificates;
+using CoreWebApp.KeyVault;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -68,6 +69,10 @@ namespace CoreWebApp
             var keyvalueName = Configuration["KeyVaultName"];
             var secret = Configuration[$"{keyvalueName}"];
 
+            services.Configure<KeyVaultOptions>(Configuration.GetSection("KeyVaultOptions"));
+            services.AddScoped<ISecretAccess, SecretAccess>();
+
+
             DemoConfiguration(services);
             DemoSwagger(services);
             DemoHttpClientFactory(services);
@@ -97,6 +102,8 @@ namespace CoreWebApp
 
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineFirst<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineSecond<,>));
+
+
 
             services.AddMvc(options =>
             {
