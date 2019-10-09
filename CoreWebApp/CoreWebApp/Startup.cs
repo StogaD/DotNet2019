@@ -26,6 +26,7 @@ using CoreWebApp.Repository;
 using MediatR;
 using System.Reflection;
 using CoreWebApp.MediatR;
+using System.Data.SqlClient;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -49,6 +50,17 @@ namespace CoreWebApp
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
+            //dotnet user-secrets set "Db:ConnectionString" ""Server=(localdb)\\mssql..."
+
+            //1 Get key from secret
+            var mySecret = Configuration["Db:ConnectionString"];
+
+            //2 Get password from secrets
+            var builder = new SqlConnectionStringBuilder( Configuration.GetConnectionString("Db:ConnectionString"));
+            var password = Configuration["DbPassword"];
+            builder.Password = string.IsNullOrWhiteSpace(password) ? "" : password;
+            var connection = builder.ConnectionString;
 
             DemoConfiguration(services);
             DemoSwagger(services);
