@@ -37,6 +37,7 @@ namespace CoreWebApp.Api.ApiConroller
         // GET api/<controller>/5
         [HttpGet("{id}")]
         [Authorize(Policy= "namePolicy")]
+        [Authorize(Policy = "domainPolicy")]
         [ApiConventionMethod(typeof(CustomApiConvention), "Demo")]
         public string DemoGet(int id)
         {

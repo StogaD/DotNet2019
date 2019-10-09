@@ -28,22 +28,19 @@ namespace CoreWebApp.Api.ApiConroller
             await HttpContext.SignOutAsync( CookieAuthenticationDefaults.AuthenticationScheme);
         }
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] string userName)
+        public async Task<IActionResult> Login([FromBody] ApplicationUser user)
         {
-            if( string.IsNullOrWhiteSpace(userName))
+
+            // omit Autentication for now
+            if( user == null || string.IsNullOrWhiteSpace(user.FullName) || string.IsNullOrWhiteSpace(user.Email))
             {
-                return BadRequest("Incorrect userName");
+                return BadRequest("Incorrect credentials !");
             }
 
 
             _logger.LogInformation("User {Name} logged out at {Time}.",
                 User.Identity.Name, DateTime.UtcNow);
 
-            var user = new ApplicationUser()
-            {
-                Email = "dawid.stoga@contoso.com",
-                FullName = userName
-           };
 
             //for test purpose . should be retrived from Db
             var mockDbChanges = DateTime.Now;

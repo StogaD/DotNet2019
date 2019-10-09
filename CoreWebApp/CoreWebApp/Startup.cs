@@ -83,8 +83,10 @@ namespace CoreWebApp
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineFirst<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineSecond<,>));
             services.AddAuthorization(options =>
-           options.AddPolicy("namePolicy",
-                      policy => policy.RequireClaim("FullName","dawids")));
+            {
+                options.AddPolicy("namePolicy", policy => policy.RequireClaim("FullName", "dawids"));
+                options.AddPolicy("domainPolicy", policy => policy.AddRequirements(new AdditionalPolicyRequirement("contoso.com")));
+            });
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(opt=>
