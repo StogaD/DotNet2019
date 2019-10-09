@@ -27,6 +27,8 @@ using MediatR;
 using System.Reflection;
 using CoreWebApp.MediatR;
 using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration.AzureKeyVault;
+using System.Security.Cryptography.X509Certificates;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -61,6 +63,10 @@ namespace CoreWebApp
             var password = Configuration["DbPassword"];
             builder.Password = string.IsNullOrWhiteSpace(password) ? "" : password;
             var connection = builder.ConnectionString;
+
+            //3  Get from AzureKeyVault (see Program.cs)
+            var keyvalueName = Configuration["KeyVaultName"];
+            var secret = Configuration[$"{keyvalueName}"];
 
             DemoConfiguration(services);
             DemoSwagger(services);

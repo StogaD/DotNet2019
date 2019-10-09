@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using CoreWebApp.Serilog;
 using Microsoft.AspNetCore;
@@ -51,6 +52,25 @@ namespace CoreWebApp
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseConfiguration(Configuration)
+            .ConfigureAppConfiguration((ctx, con) =>
+            {
+                //work only with CurrentUser cert. LocalMachine return 500.03 
+                var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+                store.Open(OpenFlags.ReadOnly);
+                var certs = store.Certificates.Find(X509FindType.FindByThumbprint, Configuration["AzureADCertThumbprint"], false);
+                var cert = certs.OfType<X509Certificate2>().Single();
+                var appId = Configuration["AzureADApplicationId"];
+
+                con.AddAzureKeyVault($"https://stogakeyvault.vault.azure.net/",
+                                     "d486965c-20e5-4fd4-b51a-2d7e7a9f8a5f",
+                                     cert);
+
+                store.Close();
+
+
+
+
+            })
                 .UseStartup<Startup>()
                 .UseSerilog();
     }
