@@ -27,6 +27,8 @@ using MediatR;
 using System.Reflection;
 using CoreWebApp.MediatR;
 using CoreWebApp.Api.ApiConroller;
+using StackExchange.Redis;
+using System.Net;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -81,16 +83,12 @@ namespace CoreWebApp
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineFirst<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineSecond<,>));
             services.AddSingleton<MyMemoryCache>();
-            services.AddStackExchangeRedisCache(options =>
-           {
-               options.Configuration = "localhost:6379";  //config to connect
-               options.InstanceName = "cacheInstance";
-               //options.ConfigurationOptions = new StackExchange.Redis.ConfigurationOptions()
-               //{
-                   
-               //};
-           });
 
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = "localhost:6379,DefaultDatabase = 1";  //config to connect
+                options.InstanceName = "cacheInstance";
+            });
 
             services.AddMvc(options =>
             {
