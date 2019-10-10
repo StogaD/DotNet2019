@@ -12,5 +12,8 @@ namespace CoreWebApp.Models
         public string Title { get; set; }
         public string Url { get; set; }
         public string ThumbnailUrl { get; set; }
+
+        //* for cache inMemory Dem*/
+        public string FromCacheOrService { get; set; }
     }
 }

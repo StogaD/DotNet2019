@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CoreWebApp.MediatR;
+using CoreWebApp.Models;
+using CoreWebApp.Services;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,10 +17,13 @@ namespace CoreWebApp.Api.ApiConroller
     public class PingController : Controller
     {
         private readonly IMediator _mediator;
-
-        public PingController(IMediator mediator)
+        private readonly IMemoryCache _memoryCache;
+        private readonly IPhotosService _photosService;
+        public PingController(IMediator mediator, IMemoryCache memoryCache, IPhotosService photosService)
         {
+            _memoryCache = memoryCache;
             _mediator = mediator;
+            _photosService = photosService;
         }
         // GET: api/<controller>
         [HttpGet]
@@ -35,7 +41,23 @@ namespace CoreWebApp.Api.ApiConroller
             return await _mediator.Send(new RequestModel { Message = message });
            
         }
+        [HttpGet("/InMemoryCacheDemo")]
+        public async Task<Photo> InMemoryCacheDemo(int id)
+        {
+            var existsInCache =  _memoryCache.TryGetValue<Photo>(id.ToString(), out var photo);
+            if(!existsInCache)
+            {
+                photo = await _photosService.GetPhotoItem(id);
+                _memoryCache.Set<Photo>(id.ToString(), photo, new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(10)));
 
+                photo.FromCacheOrService = "Service";
+            }
+            else
+            {
+                photo.FromCacheOrService = "Cache";
+            }
+            return photo;
+        }
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public string Get(int id)
