@@ -19,9 +19,9 @@ namespace CoreWebApp.Api.ApiConroller
         private readonly IMediator _mediator;
         private readonly IMemoryCache _memoryCache;
         private readonly IPhotosService _photosService;
-        public PingController(IMediator mediator, IMemoryCache memoryCache, IPhotosService photosService)
+        public PingController(IMediator mediator, MyMemoryCache memoryCache, IPhotosService photosService)
         {
-            _memoryCache = memoryCache;
+            _memoryCache = memoryCache.Cache;
             _mediator = mediator;
             _photosService = photosService;
         }
@@ -50,7 +50,7 @@ namespace CoreWebApp.Api.ApiConroller
             {
                 cache.SetSlidingExpiration(TimeSpan.FromSeconds(3));
                 cache.SetAbsoluteExpiration(TimeSpan.FromSeconds(20));
-                cache.SetSize(5000);
+                cache.SetSize(1024);
                 cache.RegisterPostEvictionCallback(EvictionCallback, this);
 
 
@@ -68,7 +68,7 @@ namespace CoreWebApp.Api.ApiConroller
 
         private void EvictionCallback(object key, object value, EvictionReason reason, object state)
         {
-            _memoryCache.Set("source", "Retrived from cache");
+            _memoryCache.Set("source", "Retrived from cache", new MemoryCacheEntryOptions().SetSize(1024));
         }
 
         // GET api/<controller>/5

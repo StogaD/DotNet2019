@@ -26,6 +26,7 @@ using CoreWebApp.Repository;
 using MediatR;
 using System.Reflection;
 using CoreWebApp.MediatR;
+using CoreWebApp.Api.ApiConroller;
 //using Microsoft.OpenApi.Models;  -> is used in preview version
 
 
@@ -79,7 +80,7 @@ namespace CoreWebApp
 
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineFirst<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineSecond<,>));
-
+            services.AddSingleton<MyMemoryCache>();
             services.AddMvc(options =>
             {
                 options.CacheProfiles.Add("Default30",
