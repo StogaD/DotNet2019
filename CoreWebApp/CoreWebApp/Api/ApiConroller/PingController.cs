@@ -7,7 +7,9 @@ using CoreWebApp.Models;
 using CoreWebApp.Services;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -19,11 +21,13 @@ namespace CoreWebApp.Api.ApiConroller
         private readonly IMediator _mediator;
         private readonly IMemoryCache _memoryCache;
         private readonly IPhotosService _photosService;
-        public PingController(IMediator mediator, MyMemoryCache memoryCache, IPhotosService photosService)
+        private readonly IDistributedCache _distributedCache;
+        public PingController(IMediator mediator, MyMemoryCache memoryCache, IDistributedCache cache, IPhotosService photosService)
         {
             _memoryCache = memoryCache.Cache;
             _mediator = mediator;
             _photosService = photosService;
+            _distributedCache = cache;
         }
         // GET: api/<controller>
         [HttpGet]
@@ -66,11 +70,28 @@ namespace CoreWebApp.Api.ApiConroller
 
         }
 
-        private void EvictionCallback(object key, object value, EvictionReason reason, object state)
-        {
-            _memoryCache.Set("source", "Retrived from cache", new MemoryCacheEntryOptions().SetSize(1024));
-        }
 
+        [HttpGet("/DistributedCacheRedis")]
+        public async Task<Photo> DistributedCacheRedis(int id)
+        {
+            var key = id.ToString();
+            Photo photo = null;
+
+            var fromCache = await _distributedCache.GetStringAsync(key);
+            if(fromCache == null)
+            {
+                photo = await _photosService.GetPhotoItem(id);
+                var serializedPhoto = JsonConvert.SerializeObject(photo);
+                await _distributedCache.SetStringAsync(key, serializedPhoto); 
+            }
+            else
+            {
+                photo =  JsonConvert.DeserializeObject<Photo>(fromCache);
+            }
+
+            return photo;
+
+        }
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public string Get(int id)
@@ -95,5 +116,10 @@ namespace CoreWebApp.Api.ApiConroller
         public void Delete(int id)
         {
         }
+        private void EvictionCallback(object key, object value, EvictionReason reason, object state)
+        {
+            _memoryCache.Set("source", "Retrived from cache", new MemoryCacheEntryOptions().SetSize(1024));
+        }
+
     }
 }

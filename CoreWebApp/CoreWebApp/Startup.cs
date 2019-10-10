@@ -81,6 +81,17 @@ namespace CoreWebApp
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineFirst<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineSecond<,>));
             services.AddSingleton<MyMemoryCache>();
+            services.AddStackExchangeRedisCache(options =>
+           {
+               options.Configuration = "localhost:6379";  //config to connect
+               options.InstanceName = "cacheInstance";
+               //options.ConfigurationOptions = new StackExchange.Redis.ConfigurationOptions()
+               //{
+                   
+               //};
+           });
+
+
             services.AddMvc(options =>
             {
                 options.CacheProfiles.Add("Default30",
