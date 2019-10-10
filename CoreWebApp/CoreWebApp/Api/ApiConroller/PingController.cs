@@ -48,8 +48,15 @@ namespace CoreWebApp.Api.ApiConroller
 
             var retrivedPhoto = await _memoryCache.GetOrCreateAsync<Photo>(id.ToString(), async (cache) =>
             {
+                cache.SetSlidingExpiration(TimeSpan.FromSeconds(3));
+                cache.SetAbsoluteExpiration(TimeSpan.FromSeconds(20));
+                cache.SetSize(5000);
+                cache.RegisterPostEvictionCallback(EvictionCallback, this);
+
+
                 var photoFromRepo = await _photosService.GetPhotoItem(id);
-                source = "FromRepo";
+                source = _memoryCache.Get<string>("source");
+
                 return photoFromRepo;
             });
 
@@ -58,6 +65,12 @@ namespace CoreWebApp.Api.ApiConroller
             return retrivedPhoto;
 
         }
+
+        private void EvictionCallback(object key, object value, EvictionReason reason, object state)
+        {
+            _memoryCache.Set("source", "Retrived from cache");
+        }
+
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public string Get(int id)
