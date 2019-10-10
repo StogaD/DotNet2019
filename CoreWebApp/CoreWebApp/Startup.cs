@@ -50,7 +50,17 @@ namespace CoreWebApp
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddCors();
+            services.AddCors(setup =>
+           {
+               setup.AddPolicy("corsPolicy", builder =>
+               {
+                   builder.WithOrigins("http://example.com", "http://spiderman.com")
+                       //.AllowAnyHeader()
+                       //.AllowAnyOrigin()
+                       //.AllowAnyOrigin()
+                       .Build();
+               });
+           });
 
             DemoConfiguration(services);
             DemoSwagger(services);
@@ -109,7 +119,7 @@ namespace CoreWebApp
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-            app.UseCors();
+            app.UseCors("corsPolicy");
             app.UseSwagger();
             app.UseSwaggerUI(c =>
            {
