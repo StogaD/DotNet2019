@@ -50,6 +50,8 @@ namespace CoreWebApp
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddCors();
+
             DemoConfiguration(services);
             DemoSwagger(services);
             DemoHttpClientFactory(services);
@@ -107,6 +109,7 @@ namespace CoreWebApp
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+            app.UseCors();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
            {

@@ -19,7 +19,7 @@ namespace CoreWebApp.Services
         private readonly HttpClient _httpClient;
         private readonly ICommentRepository _commentRepo;
         private readonly string _remoteServiceBaseUrl = "https://jsonplaceholder.typicode.com/Comments";
-        private readonly string _mockedBaseUrl = "https://testpolly.free.beeceptor.com/Comments";
+        private readonly string _mockedBaseUrl = "https://beeceptor.free.beeceptor.com/Comments";
         public CommentServiceWithRestEase(ICommentRepository commentRepo)
         {
             _commentRepo = commentRepo;

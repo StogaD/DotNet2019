@@ -17,7 +17,7 @@ namespace CoreWebApp.Services
     {
         private readonly HttpClient _httpClient;
         private readonly string _remoteServiceBaseUrl = "https://jsonplaceholder.typicode.com/albums";
-        private readonly string _mockedBaseUrl = "https://testpolly.free.beeceptor.com/albums";
+        private readonly string _mockedBaseUrl = "https://netguide.free.beeceptor.com/albums";
         public AlbumServiceWithTypedClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
