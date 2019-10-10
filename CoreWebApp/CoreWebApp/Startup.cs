@@ -55,8 +55,8 @@ namespace CoreWebApp
                setup.AddPolicy("corsPolicy", builder =>
                {
                    builder.WithOrigins("http://example.com", "http://spiderman.com")
-                       //.AllowAnyHeader()
-                       //.AllowAnyOrigin()
+                       .AllowAnyHeader()
+                       .AllowAnyMethod()
                        //.AllowAnyOrigin()
                        .Build();
                });
