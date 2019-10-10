@@ -44,19 +44,19 @@ namespace CoreWebApp.Api.ApiConroller
         [HttpGet("/InMemoryCacheDemo")]
         public async Task<Photo> InMemoryCacheDemo(int id)
         {
-            var existsInCache =  _memoryCache.TryGetValue<Photo>(id.ToString(), out var photo);
-            if(!existsInCache)
-            {
-                photo = await _photosService.GetPhotoItem(id);
-                _memoryCache.Set<Photo>(id.ToString(), photo, new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(10)));
+            var source = "cache";
 
-                photo.FromCacheOrService = "Service";
-            }
-            else
+            var retrivedPhoto = await _memoryCache.GetOrCreateAsync<Photo>(id.ToString(), async (cache) =>
             {
-                photo.FromCacheOrService = "Cache";
-            }
-            return photo;
+                var photoFromRepo = await _photosService.GetPhotoItem(id);
+                source = "FromRepo";
+                return photoFromRepo;
+            });
+
+            retrivedPhoto.FromCacheOrService = source;
+
+            return retrivedPhoto;
+
         }
         // GET api/<controller>/5
         [HttpGet("{id}")]
