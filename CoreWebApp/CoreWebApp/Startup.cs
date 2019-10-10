@@ -119,7 +119,7 @@ namespace CoreWebApp
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-            app.UseCors("corsPolicy");
+           // app.UseCors("corsPolicy");
             app.UseSwagger();
             app.UseSwaggerUI(c =>
            {

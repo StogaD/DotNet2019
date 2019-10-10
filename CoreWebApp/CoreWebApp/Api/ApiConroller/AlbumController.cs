@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoreWebApp.Models;
 using CoreWebApp.Services;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -20,6 +21,7 @@ namespace CoreWebApp.Api.ApiConroller
         }
         // GET: api/<controller>
         [HttpGet]
+        [EnableCors("corsPolicy")]
         public async Task<IEnumerable<Album>> Get()
         {
             return await _albumService.GetAlbums();
