@@ -83,6 +83,7 @@ namespace CoreWebApp
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineFirst<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BehaviourPipelineSecond<,>));
             services.AddSingleton<MyMemoryCache>();
+            services.AddMemoryCache();
 
             services.AddStackExchangeRedisCache(options =>
             {
