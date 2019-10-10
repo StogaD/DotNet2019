@@ -57,6 +57,7 @@ namespace CoreWebApp
                    builder.WithOrigins("http://example.com", "http://spiderman.com")
                        .AllowAnyHeader()
                        .AllowAnyMethod()
+                       .WithExposedHeaders("x-custom-header")
                        //.AllowAnyOrigin()
                        .Build();
                });
